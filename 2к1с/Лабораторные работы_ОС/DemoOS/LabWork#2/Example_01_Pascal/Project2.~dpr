@@ -1,0 +1,33 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  Windows, SysUtils;
+var
+  pid:Integer;
+  process:PHandle;
+begin
+  { TODO -oUser -cConsole Main : Insert code here }
+  if (ParamCount<>1) then begin
+    WriteLn('Slave: Slave must be running by Master!');
+    Halt(1);
+  end;
+
+  pid:=StrToInt(ParamStr(1));
+
+  process^:=OpenProcess(PROCESS_QUERY_INFORMATION or SYNCHRONIZE, false, pid);
+
+  if (process=nil) then begin
+    WriteLn('Slave: Error open process');
+  end;
+
+  WriteLn('Slave: Waiting for exiting process Master');
+
+  if (WaitForSingleObject(process^, INFINITE)=STATUS_WAIT_0) then begin
+    WriteLn('Slave: process Master exiting');
+  end else begin
+    WriteLn('Slave: Unknown error');
+  end;
+  
+end.

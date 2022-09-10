@@ -1,0 +1,78 @@
+//---------------------------------------------------------------------------
+//Демонстрационный проэкт к лабораторной работе №2
+//ВТОРАЯ ПРОГРАММА
+//---------------------------------------------------------------------------
+//ЗАДАНИЕ: создать программу, которая запускает на выполнение два потока
+//первый поток изменяет значение переменной
+//второй поток выводит значение переменной на экран
+//---------------------------------------------------------------------------
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+//Подключаем необходимые библиотеки
+uses
+  Windows, SysUtils;
+
+var
+  //переменные для хранения времени выполнения программы
+  startt, finisht:Cardinal;
+  //дополнительные веменные переменные
+  tmp,i,j:Integer;
+  //переменные для описания потоков
+  ThID : Cardinal;
+  hThreadFill:Cardinal;  //первый поток
+  hThreadshow:Cardinal;  //второй поток
+
+//процедура первого потока
+procedure fillValue();
+var
+  i:Integer;
+begin
+  //изменяем значение переменой в цикле
+  for i:=1 to 100 do begin
+    tmp:=tmp+1;
+    //замедляем время выполнение первого потока, поскольку вывод более
+    //долгая операция, нежели увеличение значения переменной
+    sleep(1);
+  end;
+end;
+
+//процедура второго потока
+procedure showValue();
+var
+  i:Integer;
+begin
+  //выводим значение переменной нужное количество раз
+  for i:=1 to 100 do begin
+    Write(IntToStr(tmp)+' ');
+  end;
+end;
+
+begin
+  { TODO -oUser -cConsole Main : Insert code here }
+  //выводим сообщение о начале выполнения программы
+  Write('Process started');
+  //засекаем начало выполнения потоков
+  startt:=gettickcount();
+  //запускаем первый поток
+  hThreadFill:=CreateThread(nil,0,@fillValue,nil,0,ThID);
+  //запускаем второй поток
+  hThreadShow:=CreateThread(nil,0,@showValue,nil,0,ThID);
+  //устанавливаем нужные приоритеты для потоков
+  SetThreadPriority(hThreadFill,THREAD_PRIORITY_HIGHEST	);
+  SetThreadPriority(hThreadShow,THREAD_PRIORITY_HIGHEST );
+  //ожидаем окончания выполнения потоков
+  WaitForSingleObject(hThreadFill,INFINITE);
+  WaitForSingleObject(hThreadshow,INFINITE);
+  //закрываем потоки
+  CloseHandle(hThreadFill);
+  CloseHandle(hThreadshow);
+  //фиксируем конечное время
+  finisht:=gettickcount();
+  //выводим результат времени выполнения программы
+  WriteLn('Process finished!!!');
+  WriteLn('Minutes:'+IntToStr((finisht-startt)div 60000 mod 60));
+  WriteLn('Seconds:'+IntToStr((finisht-startt)div 1000 mod 60));
+  WriteLn('MiliSeconds:'+IntToStr((finisht-startt)mod 1000));
+end.

@@ -1,0 +1,49 @@
+program Project1;
+
+{$APPTYPE CONSOLE}
+
+uses
+  Windows, SysUtils;
+var
+  pid:Integer;
+  cmd:String;
+  info:^_STARTUPINFOA;
+  pinfo:^_PROCESS_INFORMATION;
+
+begin
+  { TODO -oUser -cConsole Main : Insert code here }
+  if (ParamCount>0) then begin
+    cmd:=ParamStr(1);
+  end else begin
+    cmd:='slave.exe';
+  end;
+
+  pid:=GetCurrentProcessId();
+  cmd:=cmd+' '+IntToStr(pid);
+
+  WriteLn('Master pid - '+IntToStr(pid));
+  WriteLn('Master: starting '+cmd);
+
+  GetMem(info,SizeOf(_STARTUPINFOA));
+  GetMem(pinfo,SizeOf(_PROCESS_INFORMATION));
+  info.cb:=SizeOf(_STARTUPINFOA);
+
+  if (Not CreateProcess(nil,
+                     PChar(cmd),
+                     nil,
+                     nil,
+                     FALSE,
+                     NORMAL_PRIORITY_CLASS,
+                     nil,
+                     nil,
+                     info^,
+                     pinfo^)) then begin
+    WriteLn('Master: Slave was not running!');
+    WriteLn('Master: Check argument string!');
+    Halt(1);
+  end;
+
+  WriteLn('Master: sleeping');
+  Sleep(15000);
+  WriteLn('Master: exiting');
+end.
